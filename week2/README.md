@@ -1,7 +1,6 @@
 In our second week, we'll cover the basics of:
 
-- Comparison Operators
-- If Statements
-- For and While loops
-- Strings indexing/slicing/appending
-
+1. String indexing and slicing
+2. String formatting
+3. Logical operators
+4. Conditional operators (if, else)
