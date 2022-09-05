@@ -7,3 +7,5 @@ Not been given a clear spec on this, so let's talk about efficiency and best pra
     - Algorithms
     - Recursion, Dynamic Programming, Caching
     - Don't use python
+- Making python files work together
+- Compactness but make it not cursed (list comprehensions, lambda, etc)
