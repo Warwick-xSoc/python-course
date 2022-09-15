@@ -20,8 +20,9 @@ def create_app(test_config=None):
         pass
 
     from . import game
+    from . import menu
 
-    app.register_blueprint(game.bp)
-    app.add_url_rule('/', endpoint='index')
+    app.register_blueprint(menu.bp)
+    app.register_blueprint(game.bp, url_prefix='/game')
 
     return app

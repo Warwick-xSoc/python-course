@@ -7,14 +7,10 @@ from werkzeug.exceptions import abort
 
 bp = Blueprint('game', __name__)
 
-@bp.route('/')
-def index():
-    return render_template('home.html')
-
-@bp.route('/game/start')
+@bp.route('/start')
 def start():
     return redirect(url_for('game.play', id=uuid4()))
 
-@bp.route('/game/<string:id>/play')
+@bp.route('/<string:id>/play')
 def play(id):
     return f'Playing game {id}...'
