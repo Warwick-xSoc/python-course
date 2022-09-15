@@ -1,0 +1,3 @@
+2022-09-13 12:14:05.878185: Started learning to program python.
+2022-09-14 15:43:31.546007: I've learnt how to read files in python!
+2022-09-15 10:01:51.195591: I am going to learn how to write files soon.
