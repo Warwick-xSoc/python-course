@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1 class="pt-5 pb-3 text-center">Wahoot!</h1>
+
+<div class="row">
+    <div class="col"></div>
+    <div class="col col-lg-3">
+        <div class="d-grid gap-2">
+            <a class="btn btn-success btn-lg" href="{{ url_for('game.start') }}">Start a game</a>
+            <a class="btn btn-info btn-lg">Game History</a> 
+            <a class="btn btn-info btn-lg">Leaderboard</a>
+        </div>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}

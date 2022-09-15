@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Game{% endblock %}
+
+{% block content %}
+
+<div class="row pt-5 pb-3" id="quizz-header">
+    <div class="col">
+        <h3>Question <span class="text-muted">1</span> of <span class="text-muted">X</span></h3>
+    </div>
+    <div class="col text-end">
+        <h3>Score <span class="text-muted">10 points</span></h3>
+    </div>
+</div>
+
+<hr>
+<h3 class="pb-5"><span class="text-muted">Q:</span> How many societies are involved in this course?</h3>
+<h3 class="text-muted">A:</h3>
+<div class="row gap-2 text-center pt-4">
+    <div class="col">
+        <button class="btn btn-lg btn-danger w-100" type="button">A: 1</button>
+    </div>
+    <div class="col">
+        <button class="btn btn-lg btn-primary w-100" type="button">B: 2</button>
+    </div>
+    <div class="w-100"></div>
+    <div class="col">
+        <button class="btn btn-lg btn-warning w-100" type="button">C: 3</button>
+    </div>
+    <div class="col">
+        <button class="btn btn-lg btn-success w-100" type="button">D: 4</button>
+    </div>
+</div>
+<hr>
+<p id="footer" class="text-muted">Game ID - <code>{{ game_id }}</code></p>
+{% endblock %}
