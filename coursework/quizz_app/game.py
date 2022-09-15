@@ -13,4 +13,4 @@ def start():
 
 @bp.route('/<string:id>/play')
 def play(id):
-    return f'Playing game {id}...'
+    return render_template('in_game.html', game_id=id)
