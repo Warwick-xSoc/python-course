@@ -19,7 +19,7 @@ class QuestionRepository:
             self.questions.append(Question(q_diff, q_text, q_answers))
 
     # Get a question from the repository. Can specify a difficulty.
-    def get_question(self, difficulty = -1):
+    def get_question(self, difficulty = -1) -> Question:
 
         if difficulty <= -1 or difficulty > 2:
             # Pick a random question if no difficulty specified
