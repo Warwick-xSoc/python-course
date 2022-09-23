@@ -1,15 +1,19 @@
 class Question:
-    def __init__(self, question, choices, correct_answer):
+    def __init__(self, difficulty, question, choices):
         """
         Represents a Quizz question 
 
+        :param difficulty: 
         :param question: the actual question
-        :param choices: tuple containing possible answers
-        :param correct_answer: index of the correct answer
+        :param choices: list containing possible answers. The correct answer is always at index 0.
         """
+        self.difficulty = difficulty
         self.question = question
         self.choices = choices
-        self.correct_answer = correct_answer
+
+    def __repr__(self):
+        return f'Question({self.difficulty}, "{self.question}", {self.choices})'
+
 
 
 class Game:
