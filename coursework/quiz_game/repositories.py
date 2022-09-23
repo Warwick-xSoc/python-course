@@ -1,4 +1,4 @@
-from game import Question
+from .game import Question
 from random import choice
 
 class QuestionRepository:

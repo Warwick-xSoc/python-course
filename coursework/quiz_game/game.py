@@ -1,7 +1,7 @@
 class Question:
     def __init__(self, difficulty, question, choices):
         """
-        Represents a Quizz question 
+        Represents a Quiz question 
 
         :param difficulty: 
         :param question: the actual question
