@@ -14,6 +14,18 @@ class Question:
         self.question = question
         self.choices = choices
 
+    @staticmethod
+    def from_dict(dictionary: dict) -> 'Question': 
+        return Question(
+            difficulty=dictionary["difficulty"],
+            question=dictionary["question"],
+            choices=[
+                dictionary[f"wrong_{i}"]
+                for i in range(1, 4)
+            ]
+        )
+
+
     def __repr__(self):
         return f'Question({self.difficulty}, "{self.question}", {self.choices})'
 

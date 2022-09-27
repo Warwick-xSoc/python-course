@@ -1,6 +1,8 @@
-from .game import Game, Question
+from csv import DictReader
 from random import sample
 from typing import Optional
+
+from .game import Game, Question
 
 
 class QuestionBank:
@@ -11,16 +13,13 @@ class QuestionBank:
         difficulty ranges from 0-2: Easy, Medium, Hard
         """
 
-        with open(csv_filename) as file:
-            text = file.read()
-        str_data = [line.split(",") for line in text.split("\n")]
-
         self.questions = []
-        for q in str_data:
-            q_diff = int(q[0])
-            q_text = q[1]
-            q_answers = q[2:]
-            self.questions.append(Question(q_diff, q_text, q_answers))
+
+        with open(csv_filename) as file:
+            reader = DictReader(file)
+
+            for question in reader:
+                self.questions.append(Question.from_dict(question))
 
     def get_questions(self, num, difficulty=-1) -> list[Question]:
         """

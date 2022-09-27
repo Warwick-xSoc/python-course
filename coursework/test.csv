@@ -1,3 +1,4 @@
+difficulty,question,correct,wrong_1,wrong_2,wrong_3
 0,How many societies are involved in this course?,3,1,2,4
 1,How many weeks of content are there on the course?,6,4,5,7
 2,Which society is not involved in this course?,Quidditch,AI,Coding,Computing
