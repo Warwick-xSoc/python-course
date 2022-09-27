@@ -2,10 +2,11 @@ from .game import Game, Question
 from random import sample
 from typing import Optional
 
+
 class QuestionBank:
     def __init__(self, csv_filename: str):
         """
-        Each csv line should be in the format: 
+        Each csv line should be in the format:
         difficulty, question, correct, wrong_1, wrong_2, wrong_3
         difficulty ranges from 0-2: Easy, Medium, Hard
         """
@@ -21,7 +22,7 @@ class QuestionBank:
             q_answers = q[2:]
             self.questions.append(Question(q_diff, q_text, q_answers))
 
-    def get_questions(self, num, difficulty = -1) -> list[Question]:
+    def get_questions(self, num, difficulty=-1) -> list[Question]:
         """
         Get specified number of questions with the given difficulty.
 
@@ -32,11 +33,11 @@ class QuestionBank:
         if difficulty <= -1 or difficulty > 2:
             # Pick a random question if no difficulty specified
             return sample(self.questions, num)
-        
+
         # Otherwise, pick a question that has the specified difficulty
         diff_questions = [q for q in self.questions if q.difficulty == difficulty]
         return sample(diff_questions, num)
-                
+
 
 class GameRepository:
     def __init__(self) -> None:

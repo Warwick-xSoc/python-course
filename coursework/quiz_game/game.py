@@ -1,11 +1,12 @@
 from typing import Optional
 
+
 class Question:
     def __init__(self, difficulty, question, choices):
         """
-        Represents a Quiz question 
+        Represents a Quiz question
 
-        :param difficulty: 
+        :param difficulty:
         :param question: the actual question
         :param choices: list containing possible answers. The correct answer is always at index 0.
         """
@@ -21,7 +22,7 @@ class Player:
     def __init__(self, name: str):
         """
         Represents a Quiz player, and keeps track of their info
-        
+
         :param name:
         """
         self.name = name
@@ -30,7 +31,7 @@ class Player:
         self.max_streak = 0
         self.n_correct = 0
         self.n_answered = 0
-    
+
     def apply_scoring(self, status: str, time_left: float):
         # status: Correct, Incorrect, Timeout
         # time_left: float between 0 to 20
@@ -43,12 +44,11 @@ class Player:
                 self.this_streak += 1
                 if self.this_streak > self.max_streak:
                     self.max_streak = self.this_streak
-            
+
             case "Incorrect":
                 self.this_streak = 0
                 self.n_answered += 1
                 pass
-        
 
 
 class Game:
