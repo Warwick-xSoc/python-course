@@ -1,3 +1,5 @@
+from typing import Optional
+
 class Question:
     def __init__(self, difficulty, question, choices):
         """
@@ -50,17 +52,19 @@ class Player:
 
 
 class Game:
-    def __init__(self, uuid, questions, current_question=0):
+    def __init__(self, game_id, questions, current_question=0):
         """
         Represents the state of a game
 
-        :param uuid: the UUID of the game
+        :param game_id: the unique id of the game
         :param questions: questions to be asked in order
-        :param current_question: current question index in questions
         """
-        self.uuid = uuid
+        self.game_id = game_id
         self.questions = questions
-        self.current_question = current_question
+        self.players = {}
+
+    def get_player(self, player_name: str) -> Optional[Player]:
+        return self.players[player_name]
 
     @property
     def has_finished(self):

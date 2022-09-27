@@ -1,7 +1,8 @@
-from .game import Question
-from random import choice
+from .game import Game, Question
+from random import sample
+from typing import Optional
 
-class QuestionRepository:
+class QuestionBank:
     def __init__(self, csv_filename: str):
         # Each csv line should be in the format: 
         # difficulty, question, correct, wrong_1, wrong_2, wrong_3
@@ -19,18 +20,23 @@ class QuestionRepository:
             self.questions.append(Question(q_diff, q_text, q_answers))
 
     # Get a question from the repository. Can specify a difficulty.
-    def get_question(self, difficulty = -1) -> Question:
+    def get_questions(self, num, difficulty = -1) -> list[Question]:
 
         if difficulty <= -1 or difficulty > 2:
             # Pick a random question if no difficulty specified
-            return choice(self.questions)
+            return sample(self.questions, num)
         
         # Otherwise, pick a question that has the specified difficulty
         diff_questions = [q for q in self.questions if q.difficulty == difficulty]
-        return choice(diff_questions)
-
-    # Should we get them to prevent the same q from appearing 2+ times in the same quiz?
+        return sample(diff_questions, num)
                 
 
 class GameRepository:
-    pass
+    def __init__(self) -> None:
+        self.games = dict()
+
+    def get_game_by_id(self, game_id: str) -> Optional[Game]:
+        return self.games.get(game_id)
+
+    def add_game(self, game: Game):
+        self.games[game.game_id] = game

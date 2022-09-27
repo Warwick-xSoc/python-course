@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template
-from werkzeug.exceptions import abort
 
 
 bp = Blueprint('menu', __name__)
