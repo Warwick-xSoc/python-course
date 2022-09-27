@@ -20,7 +20,6 @@ def start():
 
 @bp.route('/play/<string:game_id>', methods = ['GET', 'POST'])
 def play(game_id):
-
     if game := game_service.get_game(game_id) is None:
         return "404"
 
@@ -32,11 +31,10 @@ def play(game_id):
         case "POST":
             # Player ID (name) should be stored in the post request
             # Request should store player_id and question
-            data : dict = request.form
-            if player_id := data.get("player_id") is None:
-                return "404"
-            if question := data.get("q_num") is None:
-                return "404"
+            data: dict = request.form
+
+            # if player_id := request.form.get("player_id") is None:
+            #     return "404"
             
             player = game.get_player(player_id)
 
@@ -48,5 +46,3 @@ def play(game_id):
                 options = question.choices,
                 player = player
             )
-        case _:
-            return "404"

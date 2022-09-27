@@ -4,9 +4,11 @@ from typing import Optional
 
 class QuestionBank:
     def __init__(self, csv_filename: str):
-        # Each csv line should be in the format: 
-        # difficulty, question, correct, wrong_1, wrong_2, wrong_3
-        # difficulty ranges from 0-2: Easy, Medium, Hard
+        """
+        Each csv line should be in the format: 
+        difficulty, question, correct, wrong_1, wrong_2, wrong_3
+        difficulty ranges from 0-2: Easy, Medium, Hard
+        """
 
         with open(csv_filename) as file:
             text = file.read()
@@ -19,8 +21,13 @@ class QuestionBank:
             q_answers = q[2:]
             self.questions.append(Question(q_diff, q_text, q_answers))
 
-    # Get a question from the repository. Can specify a difficulty.
     def get_questions(self, num, difficulty = -1) -> list[Question]:
+        """
+        Get specified number of questions with the given difficulty.
+
+        :param num: number of questions
+        :param difficulty: difficulty of the questions
+        """
 
         if difficulty <= -1 or difficulty > 2:
             # Pick a random question if no difficulty specified
