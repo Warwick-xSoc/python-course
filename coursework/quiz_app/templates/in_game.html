@@ -16,21 +16,19 @@
 <hr>
 <h3 class="pb-5"><span class="text-muted">Q: </span>{{ current_question.question }}</h3>
 <h3 class="text-muted">A:</h3>
-<div class="row gap-2 text-center pt-4">
-    <div class="col">
-        <button class="btn btn-lg btn-danger w-100" type="button">A: {{ current_question.choices[0] }}</button>
+<form>
+    <div class="row gap-2 text-center pt-4">
+        {% for choice in current_question.choices %}
+            <div class="col">
+                <input class="btn btn-lg btn-success w-100" type="submit" name="choice_{{ loop.index0 }}" value="{{ choice }}"/>
+            </div>
+
+            {% if loop.index % 2 == 0 %}
+                <div class="w-100"></div>
+            {% endif %}
+        {% endfor %}
     </div>
-    <div class="col">
-        <button class="btn btn-lg btn-primary w-100" type="button">B: {{ current_question.choices[1] }}</button>
-    </div>
-    <div class="w-100"></div>
-    <div class="col">
-        <button class="btn btn-lg btn-warning w-100" type="button">C: {{ current_question.choices[2] }}</button>
-    </div>
-    <div class="col">
-        <button class="btn btn-lg btn-success w-100" type="button">D: {{ current_question.choices[3] }}</button>
-    </div>
-</div>
+</form>
 <hr>
 <p id="footer" class="text-muted">Game ID - <code>{{ game.id }}</code></p>
 {% endblock %}

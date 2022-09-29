@@ -8,6 +8,7 @@ class Question:
 
         :param difficulty:
         :param question: the actual question
+        :param correct_answer_index: the index of the correct answer
         :param choices: list containing possible answers. The correct answer is always at index 0.
         """
         self.difficulty = difficulty
@@ -21,7 +22,7 @@ class Question:
             difficulty=dictionary["difficulty"],
             question=dictionary["question"],
             correct_answer_index=dictionary["correct_index"],
-            choices=[dictionary[f"answer_{i}"] for i in range(1, 4)],
+            choices=[dictionary[f"answer_{i}"] for i in range(1, 4 + 1)],
         )
 
     def __repr__(self):
