@@ -2,7 +2,7 @@ from typing import Optional
 
 
 class Question:
-    def __init__(self, difficulty, question, choices):
+    def __init__(self, difficulty, question, correct_answer_index, choices):
         """
         Represents a Quiz question
 
@@ -12,19 +12,17 @@ class Question:
         """
         self.difficulty = difficulty
         self.question = question
+        self.correct_answer_index = correct_answer_index
         self.choices = choices
 
     @staticmethod
-    def from_dict(dictionary: dict) -> 'Question': 
+    def from_dict(dictionary: dict) -> "Question":
         return Question(
             difficulty=dictionary["difficulty"],
             question=dictionary["question"],
-            choices=[
-                dictionary[f"wrong_{i}"]
-                for i in range(1, 4)
-            ]
+            correct_answer_index=dictionary["correct_index"],
+            choices=[dictionary[f"answer_{i}"] for i in range(1, 4)],
         )
-
 
     def __repr__(self):
         return f'Question({self.difficulty}, "{self.question}", {self.choices})'
@@ -38,6 +36,7 @@ class Player:
         :param name:
         """
         self.name = name
+        self.current_question = 0
         self.score = 0
         self.this_streak = 0
         self.max_streak = 0

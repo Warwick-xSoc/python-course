@@ -6,31 +6,31 @@
 
 <div class="row pt-5 pb-3" id="quizz-header">
     <div class="col">
-        <h3>Question <span class="text-muted">{{ question_no }}</span> of <span class="text-muted">X</span></h3>
+        <h3>Question <span class="text-muted">{{ player.current_question + 1 }}</span> of <span class="text-muted">{{ game.questions | length }}</span></h3>
     </div>
     <div class="col text-end">
-        <h3>Score <span class="text-muted">10 points</span></h3>
+        <h3>Score <span class="text-muted">{{ player.score }} points</span></h3>
     </div>
 </div>
 
 <hr>
-<h3 class="pb-5"><span class="text-muted">Q: </span>{{ question_text }}</h3>
+<h3 class="pb-5"><span class="text-muted">Q: </span>{{ current_question.question }}</h3>
 <h3 class="text-muted">A:</h3>
 <div class="row gap-2 text-center pt-4">
     <div class="col">
-        <button class="btn btn-lg btn-danger w-100" type="button">A: {{ options[0] }}</button>
+        <button class="btn btn-lg btn-danger w-100" type="button">A: {{ current_question.choices[0] }}</button>
     </div>
     <div class="col">
-        <button class="btn btn-lg btn-primary w-100" type="button">B: {{ options[1] }}</button>
+        <button class="btn btn-lg btn-primary w-100" type="button">B: {{ current_question.choices[1] }}</button>
     </div>
     <div class="w-100"></div>
     <div class="col">
-        <button class="btn btn-lg btn-warning w-100" type="button">C: {{ options[2] }}</button>
+        <button class="btn btn-lg btn-warning w-100" type="button">C: {{ current_question.choices[2] }}</button>
     </div>
     <div class="col">
-        <button class="btn btn-lg btn-success w-100" type="button">D: {{ options[3] }}</button>
+        <button class="btn btn-lg btn-success w-100" type="button">D: {{ current_question.choices[3] }}</button>
     </div>
 </div>
 <hr>
-<p id="footer" class="text-muted">Game ID - <code>{{ game_id }}</code></p>
+<p id="footer" class="text-muted">Game ID - <code>{{ game.id }}</code></p>
 {% endblock %}
