@@ -3,8 +3,9 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for,
 from quiz_game.repositories import GameRepository
 from quiz_game.services import GameService
 from quiz_game.repositories import QuestionBank
-from quiz_game.game import Player
+from quiz_game.game import Player, AnswerType
 
+from .adapters import GameUIAdapter
 from .session import USERNAME_SESSION_KEY
 
 
@@ -31,15 +32,21 @@ def join(game_id):
     username = request.form.get("username")
 
     if username is None or username == "" or username.isspace():
-        return render_template("join_game.html", game_id=game_id, error="Invalid username.")
-    
+        return render_template(
+            "join_game.html", game_id=game_id, error="Invalid username."
+        )
+
     game = game_service.get_game(game_id)
 
     if game is None:
         return "Game not found", 404
 
+    player = Player(username)
+
     session[USERNAME_SESSION_KEY] = username
-    game.players[username] = Player(username)
+    game.players[username] = player
+
+    player.start_question_attempt(game.time_per_question)
 
     return redirect(url_for("game.play", game_id=game_id))
 
@@ -57,18 +64,59 @@ def play(game_id):
     if player is None:
         return redirect(url_for("game.join", game_id=game_id))
 
-    match request.method:
-        case "GET":
-            return render_template(
-                "in_game.html",
-                game=game,
-                player=player,
-                current_question=game.questions[player.current_question]
-            )
-        case "POST":        
-            return render_template(
-                "in_game.html",
-                game=game,
-                player=player,
-                current_question=game.questions[player.current_question]
-            )
+    if not game.player_has_next_question(player):
+        pass
+
+    if request.method == "POST":
+        choice = GameUIAdapter.get_question_choice_selected(request.form)
+
+        if choice is None:
+            # TODO(tomas): display error message
+            pass
+
+        game.on_question_answer(player, choice)
+
+        return redirect(url_for("game.answer_outcome", game_id=game_id))
+    else:
+        if player.current_attempt.has_timed_out:
+            player.end_question_attempt(AnswerType.TIMEOUT)
+            player.current_question += 1
+
+        if player.current_attempt.is_resolved:
+            player.current_question += 1
+
+        player.start_question_attempt(game.time_per_question)
+
+        return render_template(
+            "in_game.html",
+            game=game,
+            player=player,
+            current_question=game.get_player_current_question(player)
+        )
+
+
+# Join -> Question -> Show outcome -> Question -> ... -> Leaderboard and summary
+# Post /play -> answer question -> redirect to outcome
+# Get /outcome -> show result and question number
+# Get /play -> if !has attempted current, start attempt
+@bp.route("/outcome/<string:game_id>", methods=["GET"])
+def answer_outcome(game_id):
+    game = game_service.get_game(game_id)
+
+    if game is None:
+        return "Game not found", 404
+
+    player_name = session.get(USERNAME_SESSION_KEY)
+    player = game.get_player(player_name)
+
+    if player is None:
+        return redirect(url_for("game.join", game_id=game_id))
+
+    if not player.current_attempt.is_resolved and player.current_attempt.has_timed_out:
+        player.end_question_attempt(AnswerType.TIMEOUT)
+
+    return render_template(
+        "answer_outcome.html",
+        game=game,
+        player=player
+    )

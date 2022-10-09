@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Outcome{% endblock %}
+
+{% block content %}
+
+<div class="row pt-5 pb-3" id="quizz-header">
+    <div class="col">
+        <h3>Question <span class="text-muted">{{ player.current_question + 1 }}</span> of <span class="text-muted">{{ game.questions | length }}</span></h3>
+    </div>
+    <div class="col text-end">
+        <h3>Score <span class="text-muted">{{ player.score }} point</span></h3>
+    </div>
+</div>
+
+<hr>
+<h3 class="pb-5">{{ player.current_attempt.outcome }}</h3>
+
+<a class="btn btn-lg btn-success w-100" href="{{ url_for('game.play', game_id=game.game_id) }}">Continue</a>
+
+<hr>
+<p id="footer" class="text-muted">Game ID - <code>{{ game.game_id }}</code></p>
+
+<script>
+    startOutcomeTimer(game.game_id)
+</script>
+{% endblock %}
