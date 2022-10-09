@@ -1,6 +1,7 @@
 from typing import Optional, Callable
 from enum import IntEnum
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from random import shuffle
 
 
 class AnswerType(IntEnum):
@@ -9,58 +10,68 @@ class AnswerType(IntEnum):
     TIMEOUT = 3
 
 
+class PlayerState(IntEnum):
+    WAITING = 1
+    ANSWERING = 2
+    FINISHED = 3
+
+
 class Question:
-    def __init__(self, difficulty, question, correct_answer_index, choices):
+    def __init__(self, difficulty, text, correct, wrong):
         """
         Represents a Quiz question
 
         :param difficulty:
-        :param question: the actual question
-        :param correct_answer_index: the index of the correct answer
-        :param choices: list containing possible answers. The correct answer is always at index 0.
+        :param text: the question's text
+        :param correct: the correct answer
+        :param wrong: list containing all of the wrong answers
         """
-        self.difficulty = difficulty
-        self.question = question
-        self.correct_answer_index = correct_answer_index
-        self.choices = choices
-
-    def get_answer_type(self, choice: int) -> AnswerType:
-        if choice == self.correct_answer_index:
-            return AnswerType.CORRECT
-        else:
-            return AnswerType.INCORRECT
+        self.difficulty: int = difficulty
+        self.text: str = text
+        self.correct: str = correct
+        self.wrong: list[str] = wrong
+    
+    def get_options(self) -> tuple[list[str], int]:
+        options = [self.correct] + self.wrong.copy()
+        shuffle(options)
+        return options, options.index(self.correct)
 
     @staticmethod
     def from_dict(dictionary: dict) -> "Question":
         return Question(
             difficulty=dictionary["difficulty"],
-            question=dictionary["question"],
-            correct_answer_index=dictionary["correct_index"],
-            choices=[dictionary[f"answer_{i}"] for i in range(1, 4 + 1)],
+            text=dictionary["text"],
+            correct=dictionary["correct"],
+            wrong=[dictionary[f"wrong_{i}"] for i in range(1, 4)]
         )
 
     def __repr__(self):
-        return f'Question({self.difficulty}, "{self.question}", {self.choices})'
+        return f'Question({self.difficulty}, "{self.text}", {self.correct})'
 
 
 class QuestionAttempt:
-    def __init__(self, start, end, attempt_end=None, outcome=None):
-        self.start = start
-        self.end = end
-        self.attempt_end = attempt_end
-        self.outcome = outcome
+    def __init__(self, start, deadline, submitted_at=None):
+        self.start: datetime = start
+        self.deadline: datetime = deadline
+        self.submitted_at: datetime = submitted_at
 
     @property
     def end_timestamp(self):
-        return self.end.timestamp() * 1000
+        return self.deadline.timestamp() * 1000
 
     @property
     def has_timed_out(self):
-        return datetime.now() > self.end
-
+        return datetime.now() > self.deadline
+    
     @property
-    def is_resolved(self):
-        return self.outcome is not None and self.attempt_end is not None
+    def time_left(self) -> float:
+        """
+        Returns time left in seconds
+        """
+        if not self.submitted_at:
+            return 0.0
+        
+        return (self.deadline - self.submitted_at).total_seconds()
 
 
 class Player:
@@ -70,101 +81,92 @@ class Player:
 
         :param name:
         """
-        self.name = name
+        self.name: str = name
 
-        self.current_question = 0
-        self.score = 0
-        self.current_streak = 0
-        self.max_streak = 0
-        self.num_correct = 0
-        self.num_answered = 0
+        self.score: int = 0
+        self.current_streak: int = 0
+        self.max_streak: int = 0
+        self.num_correct: int = 0
+        self.num_answered: int = 0
 
-        self.question_attempts = []
+        self.current_question: int = 0
 
-    def start_question_attempt(self, time_limit: timedelta):
+        self.current_attempt: QuestionAttempt = None
+        self.state: PlayerState = PlayerState.WAITING
+
+    def start_question_attempt(self, time_limit: timedelta) -> None:
         now = datetime.now()
+        self.state = PlayerState.ANSWERING
+        self.current_attempt = QuestionAttempt(now, now + time_limit)
 
-        self.question_attempts.append(QuestionAttempt(now, now + time_limit))
-
-    def end_question_attempt(self, outcome: AnswerType):
+    def end_question_attempt(self, outcome: AnswerType) -> None:
         if self.current_attempt is None:
             return
         
-        self.current_attempt.end = datetime.now()
+        self.current_attempt.submitted_at = datetime.now()
         self.current_attempt.outcome = outcome
 
-    @property
-    def current_attempt(self) -> Optional[QuestionAttempt]:
-        if len(self.question_attempts) == 0:
-            return None
-
-        return self.question_attempts[self.current_question]
-
-    def next_question(self, time_limit):
+        # Apply scoring
+        self.current_attempt.question_score = self.apply_scoring(outcome)
+        
+        self.state = PlayerState.WAITING
         self.current_question += 1
-        self.attempt_question(time_limit)
+    
+    def apply_scoring(self, answer_type: AnswerType) -> int:
+        if self.current_attempt is None:
+            return 0
+        
+        question_score = 0
+
+        match answer_type:
+            case AnswerType.CORRECT:
+                self.num_answered += 1
+                self.num_correct += 1
+
+                base_score = int((self.current_attempt.time_left * 100) // 2)
+                streak_bonus = self.current_streak * 100
+                question_score = base_score + streak_bonus
+                
+                self.score += question_score
+
+                self.current_streak += 1
+                self.max_streak = max(self.current_streak, self.max_streak)
+
+            case AnswerType.INCORRECT:
+                self.current_streak = 0
+                self.num_answered += 1
+            
+            case AnswerType.TIMEOUT:
+                self.current_streak = 0
+        
+        return question_score
 
 
 class Game:
-    def __init__(
-        self,
-        game_id: str,
-        questions: list[Question],
-        update_score: Callable[[Player, AnswerType], int],
-        time_per_question: timedelta,
-    ):
+    def __init__(self, game_id: str, questions: list[Question], time_per_question: timedelta):
         """
         Represents the state of a game
 
         :param game_id: the unique id of the game
         :param questions: questions to be asked in order
-        :param update_score: function used to calculate and update player scores
         :param time_per_question: time per question as a `timedelta`
         """
         self.game_id = game_id
         self.questions = questions
-        self.update_score = update_score
         self.time_per_question = time_per_question
 
         self.players = {}
 
-    def get_player(self, player_name: str) -> Optional[Player]:
-        return self.players[player_name]
-
-    def player_has_next_question(self, player: Player) -> bool:
+    def player_can_continue(self, player: Player) -> bool:
         return player.current_question == len(self.questions)
 
-    def get_player_current_question(self, player: Player) -> Question:
-        return self.questions[player.current_question]
-
-    def on_question_answer(self, player: Player, choice: int) -> AnswerType:
-        current_question = self.questions[player.current_question]
-        outcome = current_question.get_answer_type(choice)
+    def on_question_answer(self, player: Player, choice: int, correct_choice: int) -> AnswerType:
+        if choice == correct_choice:
+            outcome = AnswerType.CORRECT
+        else:
+            outcome = AnswerType.INCORRECT
 
         player.end_question_attempt(outcome)
 
-        self.update_score(player)
-
     def has_player_finished(self, player: Player):
         return player.current_question == len(self.questions)
-
-
-class GameScoring:
-    @staticmethod
-    def score_with_timeout(player: Player) -> int:
-        """
-        :param status: Correct, Incorrect, Timeout
-        """
-
-        match player.current_attempt.outcome:
-            case AnswerType.CORRECT:
-                player.num_answered += 1
-                player.num_correct += 1
-                player.score += (time_left * 100) // 2 + player.current_streak * 100
-
-                player.current_streak += 1
-                player.max_streak = max(player.current_streak, player.max_streak)
-
-            case AnswerType.INCORRECT:
-                player.current_streak = 0
-                player.num_answered += 1

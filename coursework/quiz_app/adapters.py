@@ -9,4 +9,8 @@ class GameUIAdapter:
 
         :param form: payload of user request
         """
-        return next((key for key in form.keys() if key.startswith("choice_")), None)
+        return int(next((key.lstrip("choice_") for key in form.keys() if key.startswith("choice_")), None))
+
+    @staticmethod
+    def get_correct_answer_index(form: dict[str, str]) -> Optional[int]:
+        return int(next((key.lstrip("correct_") for key in form.keys() if key.startswith("correct_")), None))

@@ -1,9 +1,9 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for, session
+from flask import Blueprint, redirect, render_template, request, url_for, session
 
-from quiz_game.repositories import GameRepository
+from quiz_game.repositories import GameHistory
 from quiz_game.services import GameService
 from quiz_game.repositories import QuestionBank
-from quiz_game.game import Player, AnswerType
+from quiz_game.game import Player, AnswerType, PlayerState
 
 from .adapters import GameUIAdapter
 from .session import USERNAME_SESSION_KEY
@@ -11,7 +11,7 @@ from .session import USERNAME_SESSION_KEY
 
 bp = Blueprint("game", __name__)
 
-game_repository = GameRepository()
+game_repository = GameHistory()
 question_bank = QuestionBank("test.csv")
 game_service = GameService(game_repository, question_bank)
 
@@ -46,8 +46,6 @@ def join(game_id):
     session[USERNAME_SESSION_KEY] = username
     game.players[username] = player
 
-    player.start_question_attempt(game.time_per_question)
-
     return redirect(url_for("game.play", game_id=game_id))
 
 
@@ -59,40 +57,48 @@ def play(game_id):
         return "Game not found", 404
 
     player_name = session.get(USERNAME_SESSION_KEY)
-    player = game.get_player(player_name)
+    player = game.players[player_name]
 
     if player is None:
         return redirect(url_for("game.join", game_id=game_id))
 
-    if not game.player_has_next_question(player):
-        pass
+    # if not game.player_has_next_question(player):
+    #     # TODO: show end of game thing
+    #     pass
 
+    if player.state is PlayerState.WAITING:
+        player.start_question_attempt(game.time_per_question)
+
+    # Did not submit an answer
+    if player.current_attempt.has_timed_out:
+        player.end_question_attempt(AnswerType.TIMEOUT)
+        return redirect(url_for("game.answer_outcome", game_id=game_id))
+
+    # Has submitted an answer
     if request.method == "POST":
         choice = GameUIAdapter.get_question_choice_selected(request.form)
+        correct_choice = GameUIAdapter.get_correct_answer_index(request.form)
 
-        if choice is None:
+        print(choice, correct_choice)
+
+        if choice is None or correct_choice is None:
             # TODO(tomas): display error message
             pass
 
-        game.on_question_answer(player, choice)
+        game.on_question_answer(player, choice, correct_choice)
 
         return redirect(url_for("game.answer_outcome", game_id=game_id))
-    else:
-        if player.current_attempt.has_timed_out:
-            player.end_question_attempt(AnswerType.TIMEOUT)
-            player.current_question += 1
 
-        if player.current_attempt.is_resolved:
-            player.current_question += 1
+    choices, correct_index = game.questions[player.current_question].get_options()  
 
-        player.start_question_attempt(game.time_per_question)
-
-        return render_template(
-            "in_game.html",
-            game=game,
-            player=player,
-            current_question=game.get_player_current_question(player)
-        )
+    return render_template(
+        "in_game.html",
+        game=game,
+        player=player,
+        current_question=game.questions[player.current_question],
+        choices=choices,
+        correct_index=correct_index
+    )
 
 
 # Join -> Question -> Show outcome -> Question -> ... -> Leaderboard and summary
@@ -107,12 +113,17 @@ def answer_outcome(game_id):
         return "Game not found", 404
 
     player_name = session.get(USERNAME_SESSION_KEY)
-    player = game.get_player(player_name)
+    player = game.players[player_name]
 
     if player is None:
         return redirect(url_for("game.join", game_id=game_id))
 
-    if not player.current_attempt.is_resolved and player.current_attempt.has_timed_out:
+    # Waiting, Answering, Finished
+    # Play, Waiting -> set answering, start attempt
+    # Play, ANswering -> tiemdasdasd
+    # 
+
+    if player.state is PlayerState.ANSWERING and player.current_attempt.has_timed_out:
         player.end_question_attempt(AnswerType.TIMEOUT)
 
     return render_template(

@@ -19,10 +19,10 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import game
+    from . import routes
     from . import menu
 
     app.register_blueprint(menu.bp)
-    app.register_blueprint(game.bp, url_prefix="/game")
+    app.register_blueprint(routes.bp, url_prefix="/game")
 
     return app
