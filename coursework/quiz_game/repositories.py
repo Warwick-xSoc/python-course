@@ -38,7 +38,7 @@ class QuestionBank:
         return sample(diff_questions, num)
 
 
-class GameRepository:
+class GameHistory:
     def __init__(self) -> None:
         self.games = dict()
 
