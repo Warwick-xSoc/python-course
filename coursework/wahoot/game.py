@@ -106,7 +106,6 @@ class Player:
         self.current_attempt.submitted_at = datetime.now()
         self.current_attempt.outcome = outcome
 
-        # Apply scoring
         self.current_attempt.question_score = self.apply_scoring(outcome)
         
         self.state = PlayerState.WAITING
@@ -157,8 +156,13 @@ class Game:
 
         self.players = {}
 
-    def player_can_continue(self, player: Player) -> bool:
-        return player.current_question == len(self.questions)
+    @property
+    def num_questions(self) -> int:
+        return len(self.questions)
+
+    @property
+    def num_players(self) -> int:
+        return len(self.players)
 
     def on_question_answer(self, player: Player, choice: int, correct_choice: int) -> AnswerType:
         if choice == correct_choice:
@@ -168,5 +172,16 @@ class Game:
 
         player.end_question_attempt(outcome)
 
-    def has_player_finished(self, player: Player):
-        return player.current_question == len(self.questions)
+        if self.has_player_finished(player):
+            player.state = PlayerState.FINISHED
+
+    def has_player_finished(self, player: Player) -> bool:
+        return player.current_question >= self.num_questions
+
+    def get_leaderboard(self) -> list[Player]:
+        # TODO: make O(horrible) to fix in week 6, such as bubble sort
+        return sorted(
+            self.players.values(),
+            key=lambda p: (p.score, p.max_streak, p.num_correct, p.name),
+            reverse=True
+        )

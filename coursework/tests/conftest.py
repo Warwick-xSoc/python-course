@@ -1,5 +1,5 @@
 import pytest
-from quizz_app import create_app
+from wahoot_web import create_app
 
 
 @pytest.fixture()

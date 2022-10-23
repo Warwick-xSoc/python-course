@@ -29,8 +29,14 @@ function startQuestionTimer(game_id, end) {
     )
 }
 
-function startOutcomeTimer(game_id) {
-    setTimeout(function () {
-        window.location.replace('/game/play/' + game_id)
-    }, 10 * 1000)
+function startOutcomeTimer(game_id, is_last_question) {
+    if (!is_last_question) {
+        setTimeout(function () {
+            window.location.replace('/game/play/' + game_id)
+        }, 10 * 1000)
+    } else {
+        setTimeout(function () {
+            window.location.replace('/game/end/' + game_id)
+        }, 10 * 1000)
+    }
 }

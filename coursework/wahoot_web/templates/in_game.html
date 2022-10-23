@@ -21,7 +21,6 @@
 
 <h3 class="pb-5"><span class="text-muted">Q: </span>{{ current_question.text }}</h3>
 
-<h3 class="text-muted">A:</h3>
 <form action="{{ url_for('game.play', game_id=game.game_id) }}" method="POST">
     <div class="row gap-2 text-center pt-4">
         {% set button_cols = ["danger", "primary", "warning", "success"] %}

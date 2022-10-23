@@ -6,7 +6,7 @@
 
 <div class="row pt-5 pb-3" id="quizz-header">
     <div class="col">
-        <h3>Question <span class="text-muted">{{ player.current_question + 1 }}</span> of <span class="text-muted">{{ game.questions | length }}</span></h3>
+        <h3>Question <span class="text-muted">{{ player.current_question }}</span> of <span class="text-muted">{{ game.questions | length }}</span></h3>
     </div>
     <div class="col text-end">
         <h3>Score <span class="text-muted">{{ player.score }} point</span></h3>
@@ -40,12 +40,16 @@
      <div class="col"></div>
  </div>
 
-<a class="btn btn-lg btn-success w-100" href="{{ url_for('game.play', game_id=game.game_id) }}">Continue</a>
+{% if is_last_question %}
+<a class="btn btn-lg btn-success w-100" href="{{ url_for('game.end', game_id=game.game_id) }}">Finish</a>
+{% else %}
+<a class="btn btn-lg btn-info w-100" href="{{ url_for('game.play', game_id=game.game_id) }}">Continue</a>
+{% endif %}
 
 <hr>
 <p id="footer" class="text-muted">Game ID - <code>{{ game.game_id }}</code></p>
 
 <script>
-    startOutcomeTimer(game.game_id)
+    startOutcomeTimer("{{ game.game_id }}", {{ 'true' if is_last_question else 'false' }})
 </script>
 {% endblock %}
