@@ -12,6 +12,8 @@ class QuestionBank:
         difficulty, question, correct, wrong_1, wrong_2, wrong_3
         difficulty ranges from 0-2: Easy, Medium, Hard
         """
+        # Unfilled version:
+        # self.question = Question(0, "", "Yes", ["a"])
 
         self.questions = []
 
@@ -28,14 +30,16 @@ class QuestionBank:
         :param num: number of questions
         :param difficulty: difficulty of the questions
         """
+        # Unfilled version
+        # return [self.questions[0]] * num
 
-        if difficulty <= -1 or difficulty > 2:
-            # Pick a random question if no difficulty specified
-            return sample(self.questions, num)
-
-        # Otherwise, pick a question that has the specified difficulty
-        diff_questions = [q for q in self.questions if q.difficulty == difficulty]
-        return sample(diff_questions, num)
+        # If specified, pick questions that have this difficulty
+        if 0 <= difficulty <= 2:
+            diff_questions = [q for q in self.questions if q.difficulty == difficulty]
+            return sample(diff_questions, num)
+            
+        # Pick a random question if no difficulty specified
+        return sample(self.questions, num)
 
 
 class GameHistory:
