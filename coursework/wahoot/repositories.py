@@ -12,16 +12,22 @@ class QuestionBank:
         difficulty, question, correct, wrong_1, wrong_2, wrong_3
         difficulty ranges from 0-2: Easy, Medium, Hard
         """
-        # Unfilled version:
-        # self.question = Question(0, "", "Yes", ["a"])
-
         self.questions = []
 
         with open(csv_filename) as file:
-            reader = DictReader(file)
+            header = file.readline()
 
-            for question in reader:
-                self.questions.append(Question.from_dict(question))
+            for line in file:
+                difficulty, text, correct_answer, w1, w2, w3 = line.rstrip().split(",")
+
+                question = Question(
+                    difficulty=int(difficulty),
+                    text=text,
+                    correct=correct_answer,
+                    wrong=[w1, w2, w3]
+                )
+
+                self.questions.append(question)
 
     def get_questions(self, num, difficulty=-1) -> list[Question]:
         """
@@ -30,8 +36,6 @@ class QuestionBank:
         :param num: number of questions
         :param difficulty: difficulty of the questions
         """
-        # Unfilled version
-        # return [self.questions[0]] * num
 
         # If specified, pick questions that have this difficulty
         if 0 <= difficulty <= 2:

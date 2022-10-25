@@ -25,6 +25,9 @@ class GameService:
     def get_game(self, game_id: str) -> Optional[Game]:
         return self.game_history.get_game_by_id(game_id)
 
+    def save_game(self, game_id: str):
+        pass
+
     def _generate_id(self) -> int:
         """
         Generate random hexadecimal string for a game id (5 characters)
