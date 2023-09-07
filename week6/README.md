@@ -1,11 +1,14 @@
-# The Cleanup Week
+# Data Processing
 
-Not been given a clear spec on this, so let's talk about efficiency and best practices.
+This week will cover importing data, processing and visualizing the data, and a tiny bit of machine learning.
 
-- How not to O(heat death of the universe)
-    - Data structures
-    - Algorithms
-    - Recursion, Dynamic Programming, Caching
-    - Don't use python
-- Making python files work together
-- Compactness but make it not cursed (list comprehensions, lambda, etc)
+- Pandas
+    - Importing data
+    - Cleaning data
+    - Applying functions to data
+- Matplotlib + Seaborn
+    - Simple xy graphs
+    - Complex plots
+    - Legends and labels
+- Sklearn
+    - Linear regression
